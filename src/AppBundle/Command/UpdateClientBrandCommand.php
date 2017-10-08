@@ -9,10 +9,20 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class UpdateClientBrandCommand
+ * @package AppBundle\Command
+ */
 class UpdateClientBrandCommand extends ContainerAwareCommand
 {
+    /**
+     * @var string
+     */
     public $filename;
 
+    /**
+     * @return void
+     */
     public function configure()
     {
         $this->setName('app.migrate.client:brand')
@@ -22,6 +32,11 @@ class UpdateClientBrandCommand extends ContainerAwareCommand
         ->addArgument('processCycle', InputArgument::OPTIONAL, 'process cycle', 5000);
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('<info>Client Brand Update</info>');
@@ -43,19 +58,34 @@ class UpdateClientBrandCommand extends ContainerAwareCommand
         $output->writeln('<info>Done.</info>');
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @param array $phpArray
+     * @return array
+     */
     public function generateScripts(InputInterface $input, OutputInterface $output, $phpArray = array())
     {
         $output->writeln('<info>Generating SQL scripts</info>');
+        //$generator = $this->getContainer()->get('sql_script_generator');
+
         $generator = new ScriptGenerator();
         $generator->generate($phpArray, $input->getArgument('processCycle'));
         return $generator->getFileNames();
 
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return array|null
+     * @throws \Exception
+     */
     public function parseCsv(InputInterface $input, OutputInterface $output)
     {
         //$parser = $this->getContainer()->get('csv_parser');
         $parser = new CsvParser();
+
         $data = $parser->parse($input->getArgument('filename'));
         $output->writeln('Records count: '. count($data));
         return $data;
